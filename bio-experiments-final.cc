@@ -115,7 +115,7 @@ double WeightedGini(const vector<int>& left_labs, const vector<int>& right_labs)
     return (left_size  / total_size) * GiniImpurity(left_labs)+ (right_size / total_size) * GiniImpurity(right_labs);
 }
 
-// 多数決ラベルの取得<-
+// 多数決ラベルの取得
 int MajorityLabel(const vector<int>& labs){
     int pos = 0;
     for(int i=0;i<(int)labs.size();i++){

@@ -9,103 +9,97 @@
 #include <filesystem>
 #include <random>
 
-#define FILE1 "MATa1"
-#define FILE2 "MATalpha2"
-#define FILE3 "MCM1"
-#define FILE4 "MIG1"
-#define FILE5 "PHO4"
-#define FILE6 "RCS1"
-#define FILE7 "ROX1"
-#define FILE8 "TAF"
-#define file "promoters"
-
+#define FILE1 "data/motif/MATa1"
+#define FILE2 "data/motif/MATalpha2"
+#define FILE3 "data/motif/MCM1"
+#define FILE4 "data/motif/MIG1"
+#define FILE5 "data/motif/PHO4"
+#define FILE6 "data/motif/RCS1"
+#define FILE7 "data/motif/ROX1"
+#define FILE8 "data/motif/TAF"
+#define PROMOTER_FILE "data/seq/promoters"
 
 using namespace std;
 namespace fs = std::filesystem;
 
-//バックグランド頻度を定数として定義するようにする。
-const double BG_total=7519429*2+4637676*2;
-const double BG[4]={
-    7519429/BG_total,//A
-    4637676/BG_total,//C
-    4637676/BG_total,//G
-    7519429/BG_total//T
+// ✅ 修正④: 整数リテラルを浮動小数点に
+const double BG_total = 7519429.0*2 + 4637676.0*2;
+const double BG[4] = {
+    7519429.0 / BG_total,  // A
+    4637676.0 / BG_total,  // C
+    4637676.0 / BG_total,  // G
+    7519429.0 / BG_total   // T
 };
 
-
-
-//ファイル読み込みをしたい。
-vector<string> readfile(const string&filename){
-        ifstream ifs(filename);
+// ファイル読み込み（変更なし）
+vector<string> readfile(const string& filename) {
+    ifstream ifs(filename);
     if (!ifs) {
         cerr << "Error: Cannot open " << filename << endl;
         exit(1);
     }
     string line;
-    vector<string>seq;
-        while (getline(ifs, line))//get lineで改行までの1行ずつを読み込んでくる。
+    vector<string> seq;
+    while (getline(ifs, line))
         if (!line.empty()) seq.push_back(line);
     return seq;
 }
 
-//塩基を数値に変換したい。
-int B_to_i(char c){
-    switch(c){
-        case 'A':return 0;
-        case 'C':return 1;
-        case 'G':return 2;
-        case 'T':return 3;
-        default:return -1;
+// 塩基を数値に変換（変更なし）
+int B_to_i(char c) {
+    switch (c) {
+        case 'A': return 0;
+        case 'C': return 1;
+        case 'G': return 2;
+        case 'T': return 3;
+        default:  return -1;
     }
 }
 
-//頻度表を作りたい。
-vector<vector<int>> frequency_table(const vector<string>&seq){
-    int L=seq[0].size();
-    int N=seq.size();
-    vector<vector<int>>freq(4,vector<int>(L,0));
-    for(int s=0;s<N;s++){
-        const string& seqs=seq[s];
-        for(int i=0;i<L;i++){
-            int b=B_to_i(seqs[i]);
-            if(b>=0){
-                freq[b][i]++;
-            }
+// 頻度表（変更なし）
+vector<vector<int>> frequency_table(const vector<string>& seq) {
+    int L = seq[0].size();
+    int N = seq.size();
+    vector<vector<int>> freq(4, vector<int>(L, 0));
+    for (int s = 0; s < N; s++) {
+        const string& seqs = seq[s];
+        for (int i = 0; i < L; i++) {
+            int b = B_to_i(seqs[i]);
+            if (b >= 0) freq[b][i]++;
         }
     }
     return freq;
 }
-//oddsスコア行列を作りたい。
-vector<vector<double>> odds_score(const vector<vector<int>>&freq){
-    int L=freq[0].size();
-    vector<vector<double>>odds_score_table(4,vector<double>(L,0.0));
-        for(int b=0;b<4;b++){
-            for(int j=0;j<L;j++){
-                double P=0.0;
-                double p=(freq[b][j]+1.0)/(L+4.0);
-                odds_score_table[b][j]=log(p/BG[b]);
-            }
+
+// ✅ 修正②: 引数にNを追加し，分母を N+4 に修正
+vector<vector<double>> odds_score(const vector<vector<int>>& freq, int N) {
+    int L = freq[0].size();
+    vector<vector<double>> odds_score_table(4, vector<double>(L, 0.0));
+    for (int b = 0; b < 4; b++) {
+        for (int j = 0; j < L; j++) {
+            double p = (freq[b][j] + 1.0) / (N + 4.0);  // ✅ N+4
+            odds_score_table[b][j] = log(p / BG[b]);
         }
-        return odds_score_table;
     }
+    return odds_score_table;
+}
 
-
-//promoters ファイルを読み込む。
-struct Promoter{
+// プロモーターファイルを読み込む（変更なし）
+struct Promoter {
     string gene;
     string sequence;
 };
-vector<Promoter> read_promoter(const string&filename){
-    vector<Promoter>promoters;
+
+vector<Promoter> read_promoter(const string& filename) {
+    vector<Promoter> promoters;
     ifstream ifs(filename);
-    string line;
-    string gene;
-    while(getline(ifs,line)){
-        if(line.empty())continue;
-        if(line[0]=='>'){
-            gene=line.substr(1);
-        }else{
-            promoters.push_back({gene,line});
+    string line, gene;
+    while (getline(ifs, line)) {
+        if (line.empty()) continue;
+        if (line[0] == '>') {
+            gene = line.substr(1);
+        } else {
+            promoters.push_back({gene, line});
         }
     }
     return promoters;
@@ -159,7 +153,6 @@ int score_scan(const vector<Promoter>& promoters,
     return 0;
 }
 
-
 int main() {
     const char* filename[8] = {FILE1, FILE2, FILE3, FILE4,
                                 FILE5, FILE6, FILE7, FILE8};
@@ -174,7 +167,8 @@ int main() {
         int N = seqs.size();  // 配列数
         vector<vector<int>> freq = frequency_table(seqs);
 
-        vector<vector<double>> odds_score_table = odds_score(freq, L);
+        // ✅ 修正②: Nを渡す
+        vector<vector<double>> odds_score_table = odds_score(freq, N);
 
         cout << "Motif: " << tfname[i] << endl;
         cout << "Position\tA\tC\tG\tT" << endl;
@@ -189,10 +183,9 @@ int main() {
         cout << "\n閾値: " << fixed << setprecision(5) << asikiri << endl;
         cout << "Scanning promoters for " << tfname[i] << " motif..." << endl;
 
+        // ✅ 修正①: promotersは外で読み込み済みのものを使う
+        //    修正③: 閾値を固定値5.0ではなくランダム配列法で計算した値を使う
         score_scan(promoters, odds_score_table, asikiri);
     }
     return 0;
 }
-
-
- 
