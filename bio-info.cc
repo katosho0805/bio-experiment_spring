@@ -77,13 +77,13 @@ vector<vector<int>> frequency_table(const vector<string>&seq){
     return freq;
 }
 //oddsスコア行列を作りたい。
-vector<vector<double>> odds_score(const vector<vector<int>>&freq){
+vector<vector<double>> odds_score(const vector<vector<int>>&freq, int N){
     int L=freq[0].size();
     vector<vector<double>>odds_score_table(4,vector<double>(L,0.0));
         for(int b=0;b<4;b++){
             for(int j=0;j<L;j++){
                 double P=0.0;
-                double p=(freq[b][j]+1.0)/(L+4.0);
+                double p=(freq[b][j]+1.0)/(N+4.0);
                 odds_score_table[b][j]=log(p/BG[b]);
             }
         }
@@ -175,7 +175,7 @@ int main() {
         int N = seqs.size();  // 配列数
         vector<vector<int>> freq = frequency_table(seqs);
 
-        vector<vector<double>> odds_score_table = odds_score(freq);
+        vector<vector<double>> odds_score_table = odds_score(freq, N);
 
         cout << "Motif: " << tfname[i] << endl;
         cout << "Position\tA\tC\tG\tT" << endl;
