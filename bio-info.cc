@@ -17,6 +17,7 @@
 #define FILE6 "RCS1"
 #define FILE7 "ROX1"
 #define FILE8 "TAF"
+#define PROMOTER_FILE "promoters"
 #define file "promoters"
 
 
@@ -130,8 +131,8 @@ double calculate_asikiri(const vector<vector<double>>& odds_score_table, const d
         asikiri_scores.push_back(score);
     }
     sort(asikiri_scores.begin(), asikiri_scores.end(), greater<double>());
-    int idx = (int)(0.001 * asikiri_scores.size());
-    return asikiri_scores[idx];
+    int idx = (int)(0.0001 * asikiri_scores.size());
+    return  asikiri_scores[idx];
 }
 
 // スキャン関数
@@ -174,7 +175,7 @@ int main() {
         int N = seqs.size();  // 配列数
         vector<vector<int>> freq = frequency_table(seqs);
 
-        vector<vector<double>> odds_score_table = odds_score(freq, L);
+        vector<vector<double>> odds_score_table = odds_score(freq);
 
         cout << "Motif: " << tfname[i] << endl;
         cout << "Position\tA\tC\tG\tT" << endl;
