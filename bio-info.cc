@@ -18,7 +18,7 @@
 #define FILE7 "ROX1"
 #define FILE8 "TAF"
 #define PROMOTER_FILE "promoters"
-#define file "promoters"
+
 
 
 using namespace std;
