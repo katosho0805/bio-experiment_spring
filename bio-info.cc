@@ -162,12 +162,9 @@ int score_scan(const vector<Promoter>& promoters,
 
 
 int main() {
-    const char* filename[8] = {FILE1, FILE2, FILE3, FILE4,
-                                FILE5, FILE6, FILE7, FILE8};
-    const char* tfname[8]   = {"MATa1","MATalpha2","MCM1","MIG1",
-                                "PHO4","RCS1","ROX1","TAF"};
+    const char* filename[8] = {FILE1, FILE2, FILE3, FILE4,FILE5, FILE6, FILE7, FILE8};
+    const char* tfname[8]   = {"MATa1","MATalpha2","MCM1","MIG1","PHO4","RCS1","ROX1","TAF"};
 
-    // ✅ 修正⑤: promotersをループの外で1回だけ読み込む
     vector<Promoter> promoters = read_promoter(PROMOTER_FILE);
 
     for (int i = 0; i < 8; i++) {
